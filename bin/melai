@@ -1,0 +1,109 @@
+#!/usr/bin/env ruby
+# $: << File.expand_path(File.dirname(File.realpath(__FILE__)) + '/../lib')
+# require 'rubygems'
+
+require 'gli'
+require_relative '../lib/melai'
+
+include GLI
+
+program_desc "Describe your application here"
+
+version Melai::VERSION
+
+# desc "Describe some switch here"
+# switch [:s, :switch]
+
+desc "Root directory for repository"
+default_value "repo"
+arg_name "REPOROOT"
+flag [:r, :reporoot]
+
+# TODO: Default config file for melai?
+# https://github.com/davetron5000/gli/wiki/Config
+# config_file '.melai.rc'
+
+desc "Create a repository structure"
+command :create do |c|
+
+  c.desc "Source directory containing all packages"
+  c.default_value "srcpkgs"
+  c.arg_name "SRCPKGS"
+  c.flag [:s, :srcpkgs]
+
+  c.action do |global_options, options, args|
+    $melai.create(global_options[:r], options[:s])
+  end
+end
+
+desc "List all packages in a directory"
+command :list  do |c|
+
+  c.desc "Source directory containing all packages"
+  c.default_value "srcpkgs"
+  c.arg_name "SRCPKGS"
+  c.flag [:s, :srcpkgs]
+
+  c.action do |global_options, options, args|
+    puts $melai.list(options[:s])
+  end
+end
+
+desc "Update all existing repositories with any new files found"
+command :update do |c|
+  c.action do |global_options, options, args|
+    # $todo_list.create(args)
+    # repo_update
+    pending
+  end
+end
+
+desc "Destroy the repository directory completely"
+command :destroy do |c|
+  c.action do |global_options, options, args|
+    # TODO: Add a --force option
+    # TODO: Add a "Are you sure? (y/n)" prompt
+    $melai.destroy(global_options[:r])
+  end
+end
+
+
+pre do |global, command, options, args|
+  # Pre logic here
+  # Return true to proceed; false to abort and not call the
+  # chosen command
+  # Use skips_pre before a command to skip this block
+  # on that command only
+  # true
+  $melai = Melai::CommandHandler.new
+  # TODO: Why do I have to extend the CommandHandler class? Inclusion?
+  $melai.extend(Melai::DirHelpers)
+  $melai.extend(Melai::PackageHelpers)
+  $melai.extend(Melai::StringHelpers)
+end
+
+post do |global, command, options, args|
+  # Post logic here
+  # Use skips_post before a command to skip this
+  # block on that command only
+end
+
+on_error do |exception|
+  # Error logic here
+  # return false to skip default error handling
+  true
+end
+
+exit GLI.run(ARGV)
+
+
+# module Melai
+#   cmd_line = CommandLine.new(ARGV)
+#   # review, status = Linter.check(cmd_line)
+#   # printer = cmd_line.show_context? ? ContextOutput.new : SummaryOutput.new
+#   # printer.output(review)
+#   exit status.to_i
+# end
+# 
+# 
+# 

@@ -11,8 +11,11 @@ spec/reports
 test/tmp
 test/version_tmp
 tmp
+Gemfile.lock
+.rvmrc
 
 # YARD artifacts
 .yardoc
 _yardoc
 doc/
+
