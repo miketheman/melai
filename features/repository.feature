@@ -7,7 +7,7 @@ Scenario: Create a repository for source packages in a flat directory
     Given an empty file named "srcpkgs/foo-1.0.0.i686.rpm"
     And an empty file named "srcpkgs/foo-1.0.0.i386.deb"
     And an empty file named "srcpkgs/ubuntu/foo-1.0.0-bar.i386.deb"
-    When I successfully run `melai -r repo create -s srcpkgs`
+    When I successfully run `melai -r repo create -p srcpkgs`
     Then a directory named "repo/redhat/1.0/i686/RPMS" should exist
     And a directory named "repo/redhat/os/i686/RPMS" should exist
     And a directory named "repo/debian-sysvinit/dists/dist/10gen/binary-i386" should exist
@@ -16,7 +16,7 @@ Scenario: Create a repository for source packages in a flat directory
 Scenario Outline: Create a repository directory structure for a given file
     Given a directory named "repo" does not exist
     And an empty file named <SrcFile>
-    When I successfully run `melai -r repo create -s srcpkgs`
+    When I successfully run `melai -r repo create -p srcpkgs`
     Then a directory named <RepoDir> should exist
     Examples:
         | SrcFile                                                             | RepoDir                                              |
@@ -29,3 +29,13 @@ Scenario Outline: Create a repository directory structure for a given file
         | "srcpkgs/redhat/os/i686/RPMS/bar18-server-1.8.5-version_1.i686.rpm" | "repo/redhat/1.8/i686/RPMS/"                         |
         | "srcpkgs/redhat/os/i686/RPMS/bar-2.0.6-version_1.i686.rpm"          | "repo/redhat/2.0/i686/RPMS/"                         |
 
+Scenario Outline: Create a repository file
+    Given a directory named "repo" does not exist
+    And an empty file named <SrcFile>
+    When I successfully run `melai -r repo create -p srcpkgs`
+    Then a file named <RepoTemplate> should exist
+    Examples:
+        | SrcFile                                                             | RepoTemplate                                                   |
+        | "srcpkgs/redhat/foo-2.0.0.i686.rpm"                                 | "repo/redhat/os/i686/RPMS/10gen.repo"                          |
+        | "srcpkgs/debian/foo-2.0.0.i386.deb"                                 | "repo/debian-sysvinit/dists/dist/10gen/binary-i386/10gen.list" |
+        | "srcpkgs/ubuntu/foo-2.0.0.i386.deb"                                 | "repo/ubuntu-upstart/dists/dist/10gen/binary-i386/10gen.list"  |

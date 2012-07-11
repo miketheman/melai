@@ -5,14 +5,14 @@ Feature: Set up the repository directory
 
 Scenario: Listing an empty source directory returns no files
     Given a directory named "emptysrcpkgs"
-    When I successfully run `melai list -s emptysrcpkgs`
+    When I successfully run `melai list -p emptysrcpkgs`
     Then the output should contain exactly ""
 
 Scenario: List all package files in a source directory
     Given a directory named "srcpkgs"
     And an empty file named "srcpkgs/example-1.0.deb"
     And an empty file named "srcpkgs/example-1.0.rpm"
-    When I successfully run `melai list -s srcpkgs`
+    When I successfully run `melai list -p srcpkgs`
     Then the output should contain:
         """
         srcpkgs/example-1.0.deb

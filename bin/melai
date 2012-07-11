@@ -14,10 +14,10 @@ version Melai::VERSION
 # desc "Describe some switch here"
 # switch [:s, :switch]
 
-desc "Root directory for repository"
+desc "Root directory for repositories, relative to current directory"
 default_value "repo"
-arg_name "REPOROOT"
-flag [:r, :reporoot]
+arg_name "REPOS_PATH"
+flag [:r, "repos-path"]
 
 # TODO: Default config file for melai?
 # https://github.com/davetron5000/gli/wiki/Config
@@ -26,13 +26,13 @@ flag [:r, :reporoot]
 desc "Create a repository structure"
 command :create do |c|
 
-  c.desc "Source directory containing all packages"
+  c.desc "Source directory containing all packages, relative to current directory"
   c.default_value "srcpkgs"
-  c.arg_name "SRCPKGS"
-  c.flag [:s, :srcpkgs]
+  c.arg_name "PKGS_PATH"
+  c.flag [:p, "pkgs-path"]
 
   c.action do |global_options, options, args|
-    $melai.create(global_options[:r], options[:s])
+    $melai.create(global_options[:r], options[:p])
   end
 end
 
@@ -41,11 +41,11 @@ command :list  do |c|
 
   c.desc "Source directory containing all packages"
   c.default_value "srcpkgs"
-  c.arg_name "SRCPKGS"
-  c.flag [:s, :srcpkgs]
+  c.arg_name "PKGS_PATH"
+  c.flag [:p, "pkgs-path"]
 
   c.action do |global_options, options, args|
-    puts $melai.list(options[:s])
+    puts $melai.list(options[:p])
   end
 end
 
