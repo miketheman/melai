@@ -89,41 +89,5 @@ module Melai
 
       return symlinks
     end
-
-
-        
-    # 
-    # def process_rpm_package(file, reporoot)
-    #   # Begin constructing the paths needed for this file
-    #   # It's an RPM, we know to create it in /redhat/
-    #   root = "redhat"
-    # 
-    #   # Since we want to provide both a 'base' variant and a version-specific
-    #   # one, we build an array of variants based on the the version maj.min
-    #   variants = ["os"]
-    #   version, dist = get_version_from_filename(file)
-    #   arch = get_arch_from_filename(file)
-    # 
-    #   variants << dist
-    # 
-    #   # Ensure the directory for this file exists.
-    #   # This should end up looking like:
-    #   # repo/redhat/os/i686/RPMS/
-    #   # repo/redhat/2.0/i686/RPMS/
-    #   symlinks = []
-    #   variants.each do |variant|
-    #     # This is where the link will end up
-    #     fullpath = File.join(reporoot, root, variant, arch, "RPMS")
-    # 
-    #     # Create a symlink from the source file to the destination directories
-    #     symlinks << {
-    #       :name => File.join(fullpath, File.basename(file)),
-    #       :file => file
-    #     }
-    #   end
-    # 
-    #   return symlinks
-    # end
-
   end
 end

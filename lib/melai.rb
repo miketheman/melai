@@ -60,49 +60,6 @@ module Melai
           reporoot = info[:reporoot]
           repo_template(repo, variant, arch, reporoot)
         end
-            
-
-        # Finally, enter each of the symlink directories and and do 2 things:
-        # 1. Drop a template for RPM .repo consumer (yum) or a Debian .list (apt)
-        # ref: http://archive.cloudera.com/redhat/cdh/
-        
-        # Let's process redhat first
-        # rh_root = File.join(reporoot, "redhat")
-        # if File.directory?(rh_root)
-        #   
-        #   variants = Array.new
-        #   Dir.glob(File.join(rh_root, "**")).each do |file|
-        #     variants << File.basename(file)
-        #   end
-        #   variants.uniq!
-        #   
-        #   arches = Array.new
-        #   Dir.glob(File.join(rh_root, "*/*")).each do |file|
-        #     arches << File.basename(file)
-        #   end
-        #   arches.uniq!
-        # 
-        #   puts variants.inspect
-        #   puts arches.inspect
-        #   
-        #   variants.each do |variant|
-        #     arches.each do |arch|
-        #       templdir =  File.join(rh_root, variant, arch)
-        #       repo_template(templdir, "redhat.repo.erb", variant, arch)
-        #     end
-        #   end
-        # end
-        #     
-        #     puts rh_variants.inspect
-        #     rh_variants.each do |variant|
-        #       rh_arches.each do |arch|
-        #         templdir =  File.join(reporoot, "redhat", variant, arch)
-        #         repo_template(templdir, "redhat.repo.erb", variant, arch)
-        #       end
-        #     end
-    
-        # 2. Run the appropriate repo-creation tool (createrepo/reprepo) 
-
       end
     end
 
