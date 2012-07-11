@@ -7,7 +7,7 @@ Scenario: Create a repository for source packages in a flat directory
     Given an empty file named "srcpkgs/foo-1.0.0.i686.rpm"
     And an empty file named "srcpkgs/foo-1.0.0.i386.deb"
     And an empty file named "srcpkgs/ubuntu/foo-1.0.0-bar.i386.deb"
-    When I successfully run `melai -r repo create -s srcpkgs`
+    When I successfully run `melai -r repo create -p srcpkgs`
     Then a directory named "repo/redhat/1.0/i686/RPMS" should exist
     And a directory named "repo/redhat/os/i686/RPMS" should exist
     And a directory named "repo/debian-sysvinit/dists/dist/10gen/binary-i386" should exist
@@ -16,7 +16,7 @@ Scenario: Create a repository for source packages in a flat directory
 Scenario Outline: Create a repository directory structure for a given file
     Given a directory named "repo" does not exist
     And an empty file named <SrcFile>
-    When I successfully run `melai -r repo create -s srcpkgs`
+    When I successfully run `melai -r repo create -p srcpkgs`
     Then a directory named <RepoDir> should exist
     Examples:
         | SrcFile                                                             | RepoDir                                              |
