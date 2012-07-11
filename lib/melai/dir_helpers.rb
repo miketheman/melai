@@ -8,9 +8,9 @@ module Melai
     #
     # @param [String] a directory to evaluate
     # @return [Array] an array of filenmes
-    def get_any_package_files(srcpkgs)
-      pkgfiles = File.join(srcpkgs, "**", "*.{rpm,deb}")
-      foundfiles = Dir.glob(pkgfiles).sort()
+    def find_packages(packages_path)
+      packages = File.join(packages_path, "**", "*.{rpm,deb}")
+      return Dir.glob(packages).sort()
     end
 
     # Ensure a directory exists

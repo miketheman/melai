@@ -16,93 +16,45 @@ module Melai
     #
     # @param [String] a directory to build into
     # @param [String] a directory containing the source packages
-    def create(reporoot, srcpkgs)
+    def create(repositories_path, packages_path)
       # Don't create if there's already something in the directory
-      if File.exists?(reporoot)
-        exit_now!("Something already exists at #{reporoot}. Exiting.", 1)
+      if File.exists?(repositories_path)
+        exit_now!("Something already exists at #{repositories_path}. Exiting.", 1)
       else
-        puts "Creating a repository at #{reporoot}."
-        ensure_directory(reporoot)
-
-        # Collect all the filenames
-        pkgfiles = get_any_package_files(srcpkgs)
-
-        # Run each file individually through the parser and act, based on rules
-        symlinks_to_ensure = pkgfiles.map do |file|
-          process_package(file, reporoot)
-        end
+        puts "Creating a repository at #{repositories_path}."
+        ensure_directory(repositories_path)
 
         # Accumulate a Hash keyed by repository filesystem path
-        # whose values are hashes of {:need_update => bool, 
+        # whose values are hashes of {:needs_update => bool, 
         # :arch => String, :variant => String }
-        repo_info = Hash.new
+        repositories = Hash.new
 
-        # Create all those symlinks here
-        symlinks_to_ensure.flatten.each do |link|
-          need_update = ensure_symlink(link[:symlink_name], link[:original_file])
-          repo = link[:repo]
-          need_update ||= repo_info.key?(repo) && repo_info[repo][:need_update]
-          repo_info[repo] = {
-            :need_update => need_update, 
-            :variant => link[:variant],
-            :arch => link[:arch],
-            :reporoot => link[:reporoot]
-          }
+        find_packages(packages_path).each do |package_path|
+          package_metadata(package_path, repositories_path).each do |metadata|
+            repository_path = metadata[:repository_path]
+            needs_update = ensure_symlink(metadata[:symlink_path], metadata[:package_path])
+
+            if repositories.include?(repository_path)
+              repositories[repository_path][:needs_update] ||= needs_update
+            else
+              repositories[repository_path] = {
+                :needs_update => needs_update,
+                :variant => metadata[:variant],
+                :arch => metadata[:arch],
+                :repository_path => metadata[:repository_path]
+              }
+            end
+          end
         end
 
         # Now we have a Hash of all the repo directories that need updating by a value of 'true'
-        
-        repo_info.each do |repo, info|
-          next unless info[:need_update]
+        repositories.each do |repository_path, metadata|
+          next unless metadata[:needs_update]
 
-          variant = info[:variant]
-          arch = info[:arch]
-          reporoot = info[:reporoot]
-          repo_template(repo, variant, arch, reporoot)
+          variant = metadata[:variant]
+          arch = metadata[:arch]
+          repo_template(repository_path, variant, arch, repositories_path)
         end
-            
-
-        # Finally, enter each of the symlink directories and and do 2 things:
-        # 1. Drop a template for RPM .repo consumer (yum) or a Debian .list (apt)
-        # ref: http://archive.cloudera.com/redhat/cdh/
-        
-        # Let's process redhat first
-        # rh_root = File.join(reporoot, "redhat")
-        # if File.directory?(rh_root)
-        #   
-        #   variants = Array.new
-        #   Dir.glob(File.join(rh_root, "**")).each do |file|
-        #     variants << File.basename(file)
-        #   end
-        #   variants.uniq!
-        #   
-        #   arches = Array.new
-        #   Dir.glob(File.join(rh_root, "*/*")).each do |file|
-        #     arches << File.basename(file)
-        #   end
-        #   arches.uniq!
-        # 
-        #   puts variants.inspect
-        #   puts arches.inspect
-        #   
-        #   variants.each do |variant|
-        #     arches.each do |arch|
-        #       templdir =  File.join(rh_root, variant, arch)
-        #       repo_template(templdir, "redhat.repo.erb", variant, arch)
-        #     end
-        #   end
-        # end
-        #     
-        #     puts rh_variants.inspect
-        #     rh_variants.each do |variant|
-        #       rh_arches.each do |arch|
-        #         templdir =  File.join(reporoot, "redhat", variant, arch)
-        #         repo_template(templdir, "redhat.repo.erb", variant, arch)
-        #       end
-        #     end
-    
-        # 2. Run the appropriate repo-creation tool (createrepo/reprepo) 
-
       end
     end
 
@@ -110,8 +62,8 @@ module Melai
     #
     # @param [String] a directory containing the source packages
     # @return [Array] an array of filenames
-    def list(srcpkgs)
-      get_any_package_files(srcpkgs)
+    def list(packages_path)
+      find_packages(packages_path)
     end
 
     def update(directory)
@@ -122,12 +74,12 @@ module Melai
     # This is a glorified `rm -fr repo/` command, with a simple guard.
     #
     # @param [String] the root of repository directory
-    def destroy(reporoot)
-      if reporoot == "/"
+    def destroy(repositories_path)
+      if repositories_path == "/"
         exit_now!("WTF are you trying to do?", 1)
       else
-        puts "Removing the entire #{reporoot}"
-        FileUtils.remove_dir reporoot
+        puts "Removing the entire #{repositories_path}"
+        FileUtils.remove_dir repositories_path
         puts "It's gone!"
       end
     end

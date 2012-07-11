@@ -7,123 +7,87 @@ module Melai
   # This module provides some package helper methods
   module PackageHelpers
 
-    def root
-      File.expand_path '../..', __FILE__
-    end
-
-    def process_package(file, reporoot)
-      fileext = File.extname(file)
-      case fileext
+    # Return an array of package metadata hashes. Each
+    # array element describes a particular repository
+    # that this package should be a member of.
+    def package_metadata(package_path, repositories_path)
+      case File.extname(package_path)
       when '.rpm'
-        return process_rpm_package(file, reporoot)
+        return rpm_package_metadata(package_path, repositories_path)
       when '.deb'
-        if File.fnmatch('*ubuntu*', file)
-          return process_ubuntu_package(file, reporoot)
-        else File.fnmatch('*debian*', file)
-          return process_debian_package(file, reporoot)
+        if File.fnmatch('*ubuntu*', package_path)
+          return ubuntu_package_metadata(package_path, repositories_path)
+        else File.fnmatch('*debian*', package_path)
+          return debian_package_metadata(package_path, repositories_path)
         end
       end
     end
 
-    def repo_template(repo, variant, arch, reporoot)
-      case reporoot
-      when "redhat"
+    def repo_template(repository_path, variant, arch, repositories_path)
+      case repository_path
+      when /redhat/
         source = "redhat.repo.erb"
         target = "10gen.repo"
       else
         source = "debian.list.erb"
         target = "10gen.list"
       end
-      
-      template = ERB.new(File.read(File.join(root, "..", "templates", source)))
-      output = File.new(File.join(repo, target), "w")
+
+      baseurl = repository_path.slice(
+        repositories_path.length + 1,
+        repository_path.length - repositories_path.length)
+
+      here = File.dirname(__FILE__)
+      template = ERB.new(File.read(File.join(here, "..", "..", "templates", source)))
+      output = File.new(File.join(repository_path, target), "w")
       output.write(template.result(binding))
     end
 
+
     private
 
-    def process_rpm_package(file, reporoot)
-      generate_symlinks(file, reporoot, "redhat", ["os"]) do |root, variant, arch|
-        # return the fullpath
-        File.join(reporoot, root, variant, arch, "RPMS")
+    def rpm_package_metadata(package_path, repositories_path)
+      generate_metadata(package_path, repositories_path, ["os"]) do |variant, arch|
+        File.join(repositories_path, "redhat", variant, arch, "RPMS")
       end
     end
 
-    def process_debian_package(file, reporoot)
-      generate_symlinks(file, reporoot, "debian-sysvinit/dists", ["dist"]) do |root, variant, arch|
-        # return the fullpath
-        File.join(reporoot, root, variant, "10gen", "binary-#{arch}")
+    def debian_package_metadata(package_path, repositories_path)
+      generate_metadata(package_path, repositories_path, ["dist"]) do |variant, arch|
+        File.join(repositories_path, "debian-sysvinit/dists", variant, "10gen", "binary-#{arch}")
       end
     end
 
-    def process_ubuntu_package(file, reporoot)
-      generate_symlinks(file, reporoot, "ubuntu-upstart/dists", ["dist"]) do |root, variant, arch|
-        # return the fullpath
-        File.join(reporoot, root, variant, "10gen", "binary-#{arch}")
+    def ubuntu_package_metadata(package_path, repositories_path)
+      generate_metadata(package_path, repositories_path, ["dist"]) do |variant, arch|
+        File.join(repositories_path, "ubuntu-upstart/dists", variant, "10gen", "binary-#{arch}")
       end
     end
 
-    def generate_symlinks(file, reporoot, root, variants)
+    def generate_metadata(package_path, repositories_path, variants)
       # Since we want to provide both a 'base' variant and a version-specific
       # one, we build an array of variants based on the the version maj.min
-      version, dist = get_version_from_filename(file)
-      arch = get_arch_from_filename(file)
+      version, dist = get_version_from_filename(package_path)
+      arch = get_arch_from_filename(package_path)
 
       variants << dist
 
-      symlinks = []
+      package_metadata = []
       variants.each do |variant|
         # This is where the link will end up
-        fullpath = yield root, variant, arch
-      
+        repository_path = yield variant, arch
+
         # Create a symlink from the source file to the destination directories
-        symlinks << {
-          :symlink_name => File.join(fullpath, File.basename(file)),
-          :original_file => file,
+        package_metadata << {
+          :symlink_path => File.join(repository_path, File.basename(package_path)),
+          :package_path => package_path,
           :variant => variant,
           :arch => arch,
-          :repo => fullpath,
-          :reporoot => root
+          :repository_path => repository_path
         }
       end
 
-      return symlinks
+      return package_metadata
     end
-
-
-        
-    # 
-    # def process_rpm_package(file, reporoot)
-    #   # Begin constructing the paths needed for this file
-    #   # It's an RPM, we know to create it in /redhat/
-    #   root = "redhat"
-    # 
-    #   # Since we want to provide both a 'base' variant and a version-specific
-    #   # one, we build an array of variants based on the the version maj.min
-    #   variants = ["os"]
-    #   version, dist = get_version_from_filename(file)
-    #   arch = get_arch_from_filename(file)
-    # 
-    #   variants << dist
-    # 
-    #   # Ensure the directory for this file exists.
-    #   # This should end up looking like:
-    #   # repo/redhat/os/i686/RPMS/
-    #   # repo/redhat/2.0/i686/RPMS/
-    #   symlinks = []
-    #   variants.each do |variant|
-    #     # This is where the link will end up
-    #     fullpath = File.join(reporoot, root, variant, arch, "RPMS")
-    # 
-    #     # Create a symlink from the source file to the destination directories
-    #     symlinks << {
-    #       :name => File.join(fullpath, File.basename(file)),
-    #       :file => file
-    #     }
-    #   end
-    # 
-    #   return symlinks
-    # end
-
   end
 end
