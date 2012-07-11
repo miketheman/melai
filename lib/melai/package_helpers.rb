@@ -11,6 +11,37 @@ module Melai
       File.expand_path '../..', __FILE__
     end
 
+    def process_package(file, reporoot)
+      fileext = File.extname(file)
+      case fileext
+      when '.rpm'
+        return process_rpm_package(file, reporoot)
+      when '.deb'
+        if File.fnmatch('*ubuntu*', file)
+          return process_ubuntu_package(file, reporoot)
+        else File.fnmatch('*debian*', file)
+          return process_debian_package(file, reporoot)
+        end
+      end
+    end
+
+    def repo_template(repo, variant, arch, reporoot)
+      case reporoot
+      when "redhat"
+        source = "redhat.repo.erb"
+        target = "10gen.repo"
+      else
+        source = "debian.list.erb"
+        target = "10gen.list"
+      end
+      
+      template = ERB.new(File.read(File.join(root, "..", "templates", source)))
+      output = File.new(File.join(repo, target), "w")
+      output.write(template.result(binding))
+    end
+
+    private
+
     def process_rpm_package(file, reporoot)
       generate_symlinks(file, reporoot, "redhat", ["os"]) do |root, variant, arch|
         # return the fullpath
@@ -31,23 +62,6 @@ module Melai
         File.join(reporoot, root, variant, "10gen", "binary-#{arch}")
       end
     end
-
-    def repo_template(repo, variant, arch, reporoot)
-      case reporoot
-      when "redhat"
-        source = "redhat.repo.erb"
-        target = "10gen.repo"
-      else
-        source = "debian.list.erb"
-        target = "10gen.list"
-      end
-      
-      template = ERB.new(File.read(File.join(root, "..", "templates", source)))
-      output = File.new(File.join(repo, target), "w")
-      output.write(template.result(binding))
-    end
-
-    private
 
     def generate_symlinks(file, reporoot, root, variants)
       # Since we want to provide both a 'base' variant and a version-specific
