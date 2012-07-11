@@ -28,20 +28,8 @@ module Melai
         pkgfiles = get_any_package_files(srcpkgs)
 
         # Run each file individually through the parser and act, based on rules
-        symlinks_to_ensure = Array.new
-
-        pkgfiles.each do |file|
-          fileext = File.extname(file)
-          case fileext
-          when '.rpm'
-            symlinks_to_ensure << process_rpm_package(file, reporoot)
-          when '.deb'
-            if File.fnmatch('*ubuntu*', file)
-              symlinks_to_ensure << process_ubuntu_package(file, reporoot)
-            else File.fnmatch('*debian*', file)
-              symlinks_to_ensure << process_debian_package(file, reporoot)
-            end
-          end
+        symlinks_to_ensure = pkgfiles.map do |file|
+          process_package(file, reporoot)
         end
 
         # Accumulate a Hash keyed by repository filesystem path
