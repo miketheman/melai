@@ -33,7 +33,8 @@ module Melai
     def ensure_symlink(symlink_name, original_file)
       unless File.symlink?(symlink_name)
         ensure_directory(File.dirname(symlink_name))
-        File.symlink(original_file, symlink_name)
+        target = File.absolute_path(original_file)
+        File.symlink(target, symlink_name)
         return true
       end
       return false
