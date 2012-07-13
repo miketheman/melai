@@ -68,10 +68,12 @@ module Melai
     def destroy(repositories_path)
       if repositories_path == "/"
         exit_now!("WTF are you trying to do?", 1)
-      else
+      elsif Dir.exists?(repositories_path)
         puts "Removing the entire #{repositories_path}"
         FileUtils.remove_dir repositories_path
         puts "It's gone!"
+      else
+        puts "Nothing there... idiot."
       end
     end
   end
