@@ -12,11 +12,11 @@ module Melai
   # 
   class CommandHandler
 
-    # Creates a symlink-based repository structure
+    # Creates/updates a symlink-based repository structure
     #
     # @param [String] a directory to build into
     # @param [String] a directory containing the source packages
-    def create(repositories_path, packages_path)
+    def create(repositories_path, packages_path, url_root)
       puts "Creating a repository at #{repositories_path}."
       ensure_directory(repositories_path)
 
@@ -48,9 +48,8 @@ module Melai
       repositories.each do |repository_path, metadata|
         next unless metadata[:needs_update]
 
-        variant = metadata[:variant]
-        arch = metadata[:arch]
-        repo_template(repository_path, variant, arch, repositories_path)
+        repo_template(metadata, repositories_path, url_root)
+        update_repo_metadata(metadata, repositories_path, packages_path)
       end
     end
 

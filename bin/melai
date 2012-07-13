@@ -31,10 +31,16 @@ command :create do |c|
   c.arg_name "PKGS_PATH"
   c.flag [:p, "pkgs-path"]
 
+  c.desc "FQDN of the web server, must include http:// and desired docroot"
+  c.default_value "http://somewhere.com/repo"
+  c.arg_name "URL_ROOT"
+  c.flag [:u, "url-root"]
+
   c.action do |global_options, options, args|
     repositories_path = File.absolute_path(global_options[:r])
     packages_path = File.absolute_path(options[:p])
-    $melai.create(repositories_path, packages_path)
+    url_root = options[:u]
+    $melai.create(repositories_path, packages_path, url_root)
   end
 end
 
