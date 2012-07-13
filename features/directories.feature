@@ -19,17 +19,6 @@ Scenario: List all package files in a source directory
         srcpkgs/example-1.0.rpm
         """
 
-Scenario: Fail to create a repo if already has files
-    Given a directory named "repo"
-    And an empty file named "repo/package.rpm"
-    And a directory named "srcpkgs"
-    And an empty file named "srcpkgs/example-1.1.deb"
-    When I run `melai -r repo create`
-    Then it should fail with:
-        """
-        Something already exists at repo. Exiting.
-        """
-
 # Final step, cleans up
 Scenario: A repository directory exists and I want to destroy it
     Given a directory named "repo"
