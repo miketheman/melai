@@ -1,4 +1,5 @@
 require 'erb'
+require 'tempfile'
 require 'mixlib/shellout'
 require_relative 'dir_helpers'
 require_relative 'string_helpers'
@@ -43,6 +44,60 @@ module Melai
       output.write(template.result(binding))
     end
 
+    def update_repo_metadata(metadata, repositories_path, packages_path)
+      repository_path = metadata[:repository_path]
+
+      # e.g /data/packages/cache/debian-sysvinit/dists/
+      cache_path = File.join(packages_path, "cache", metadata[:repository_prefix])
+      ensure_directory(cache_path)
+
+      case repository_path
+      when /redhat/
+        begin
+          # e.g. repo/redhat/2.0/x86_64/
+          variant_dir = File.join(repositories_path,
+            metadata[:repository_prefix],
+            metadata[:variant],
+            metadata[:arch])
+
+          shell_out("createrepo --pretty -c #{cache_path} #{variant_dir}")
+        rescue Exception=>e
+          exit_now!("Could not complete createrepo:\n#{e}", 1)
+        end
+
+      else
+        # Do Debian-style repo builds
+        here = File.dirname(__FILE__)
+        template = ERB.new(File.read(File.join(here, "..", "..", "templates", "apt-ftparchive.conf.erb")))
+        output = Tempfile.new("apt-ftparchive.conf")
+        output.write(template.result(binding))
+        output.close()
+
+        begin
+          # Generates the Packages, Contents files
+          shell_out("apt-ftparchive generate #{output.path}")
+
+          # Generate the Release files on stdout
+          variant_dir = File.join(repositories_path,
+            metadata[:repository_prefix],
+            "dists",
+            metadata[:variant])
+
+          result = shell_out("apt-ftparchive -c #{output.path} release #{variant_dir}")
+
+          # Dump the Release stdout to a Release file
+          release_file = File.join(variant_dir, "Release.new")
+          File.open(release_file, "w").write(result.stdout)
+          # This ensures that the Release file is not included within itself
+          File.rename(release_file, File.join(variant_dir, "Release"))
+
+          # TODO: GPG Sign the Release file
+
+        rescue Exception=>e
+          exit_now!("Could not complete apt-ftparchive:\n#{e}", 1)
+        end
+      end
+    end
 
     private
 
@@ -67,7 +122,7 @@ module Melai
         # Return path segments, relative to repositories_path,
         # necessary to construct a path to the correct directory
         # for Debian packages in the given variant and arch.
-        ["debian-sysvinit/dists", variant, "10gen", "binary-#{arch}"]
+        ["debian-sysvinit", "dists", variant, "10gen", "binary-#{arch}"]
       end
     end
 
@@ -76,7 +131,7 @@ module Melai
         # Return path segments, relative to repositories_path,
         # necessary to construct a path to the correct directory
         # for Ubuntu packages in the given variant and arch.
-        ["ubuntu-upstart/dists", variant, "10gen", "binary-#{arch}"]
+        ["ubuntu-upstart", "dists", variant, "10gen", "binary-#{arch}"]
       end
     end
 

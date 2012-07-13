@@ -10,7 +10,6 @@ module Melai
     # @params [String] A filename
     # @return [String] the arch name
     def get_arch_from_filename(filename)
-      # arch = (filename.match(/(i686|x86_64)/) || ["unknown"])[0]
       case
       when matched = filename.match(/(i686|x86_64|i386|amd64)/)
         arch = matched[0]

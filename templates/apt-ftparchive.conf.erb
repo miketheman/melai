@@ -1,6 +1,6 @@
 Dir {
   ArchiveDir "<%= repositories_path %>/<%= metadata[:repository_prefix] %>";
-  CacheDir "<%= packages_path %>/cache";
+  CacheDir "<%= cache_path %>";
 };
 
 Tree "dists/<%= metadata[:variant] %>" {
