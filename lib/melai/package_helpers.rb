@@ -23,19 +23,18 @@ module Melai
       end
     end
 
-    def repo_template(repository_path, variant, arch, repositories_path)
+    def repo_template(metadata, repositories_path, url_root)
+      repository_path = metadata[:repository_path]
       case repository_path
       when /redhat/
         source = "redhat.repo.erb"
         target = "10gen.repo"
+        url_path = File.join(metadata[:repository_prefix], metadata[:variant], metadata[:arch])
       else
         source = "debian.list.erb"
         target = "10gen.list"
+        url_path = File.join(metadata[:repository_prefix])
       end
-
-      baseurl = repository_path.slice(
-        repositories_path.length + 1,
-        repository_path.length - repositories_path.length)
 
       here = File.dirname(__FILE__)
       template = ERB.new(File.read(File.join(here, "..", "..", "templates", source)))
