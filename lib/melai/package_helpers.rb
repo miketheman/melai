@@ -48,19 +48,28 @@ module Melai
 
     def rpm_package_metadata(package_path, repositories_path)
       generate_metadata(package_path, repositories_path, ["os"]) do |variant, arch|
-        File.join(repositories_path, "redhat", variant, arch, "RPMS")
+        # Return path segments, relative to repositories_path,
+        # necessary to construct a path to the correct directory
+        # for RPM packages in the given variant and arch.
+        ["redhat", variant, arch, "RPMS"]
       end
     end
 
     def debian_package_metadata(package_path, repositories_path)
       generate_metadata(package_path, repositories_path, ["dist"]) do |variant, arch|
-        File.join(repositories_path, "debian-sysvinit/dists", variant, "10gen", "binary-#{arch}")
+        # Return path segments, relative to repositories_path,
+        # necessary to construct a path to the correct directory
+        # for Debian packages in the given variant and arch.
+        ["debian-sysvinit/dists", variant, "10gen", "binary-#{arch}"]
       end
     end
 
     def ubuntu_package_metadata(package_path, repositories_path)
       generate_metadata(package_path, repositories_path, ["dist"]) do |variant, arch|
-        File.join(repositories_path, "ubuntu-upstart/dists", variant, "10gen", "binary-#{arch}")
+        # Return path segments, relative to repositories_path,
+        # necessary to construct a path to the correct directory
+        # for Ubuntu packages in the given variant and arch.
+        ["ubuntu-upstart/dists", variant, "10gen", "binary-#{arch}"]
       end
     end
 
@@ -75,7 +84,9 @@ module Melai
       package_metadata = []
       variants.each do |variant|
         # This is where the link will end up
-        repository_path = yield variant, arch
+        path_segments = yield variant, arch
+        repository_path = File.join(repositories_path, *path_segments)
+        repository_prefix = path_segments[0]
 
         # Create a symlink from the source file to the destination directories
         package_metadata << {
@@ -83,7 +94,8 @@ module Melai
           :package_path => package_path,
           :variant => variant,
           :arch => arch,
-          :repository_path => repository_path
+          :repository_path => repository_path,
+          :repository_prefix => repository_prefix
         }
       end
 
