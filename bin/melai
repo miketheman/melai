@@ -32,7 +32,9 @@ command :create do |c|
   c.flag [:p, "pkgs-path"]
 
   c.action do |global_options, options, args|
-    $melai.create(global_options[:r], options[:p])
+    repositories_path = File.absolute_path(global_options[:r])
+    packages_path = File.absolute_path(options[:p])
+    $melai.create(repositories_path, packages_path)
   end
 end
 
