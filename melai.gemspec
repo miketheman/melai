@@ -19,6 +19,9 @@ Gem::Specification.new do |gem|
 
   # versiononmy http://dazuma.github.com/versionomy/
   gem.add_dependency 'versionomy'
+
+  # MixLib::ShellOut to perform system-level commands
+  gem.add_dependency 'mixlib-shellout'
   
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'aruba'

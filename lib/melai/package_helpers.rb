@@ -1,4 +1,5 @@
 require 'erb'
+require 'mixlib/shellout'
 require_relative 'dir_helpers'
 require_relative 'string_helpers'
 
@@ -44,6 +45,13 @@ module Melai
 
 
     private
+
+    def shell_out(command)
+      proc = Mixlib::ShellOut.new(command)
+      proc.run_command
+      proc.error!
+      return proc
+    end
 
     def rpm_package_metadata(package_path, repositories_path)
       generate_metadata(package_path, repositories_path, ["os"]) do |variant, arch|
