@@ -37,7 +37,8 @@ module Melai
               :needs_update => needs_update,
               :variant => metadata[:variant],
               :arch => metadata[:arch],
-              :repository_path => metadata[:repository_path]
+              :repository_path => metadata[:repository_path],
+              :repository_prefix => metadata[:repository_prefix]
             }
           end
         end
