@@ -20,6 +20,10 @@ Or install it yourself as:
 
 TODO: Write usage instructions here
 
+An example:
+
+    melai -r newrepo create -p sourcepackages -u "http://mypackageserver.com/myrepo"
+
 ## Contributing
 
 1. Fork it

@@ -1,0 +1,26 @@
+Dir {
+  ArchiveDir "<%= repositories_path %>/<%= metadata[:repository_prefix] %>";
+  CacheDir "<%= packages_path %>/cache";
+};
+
+Tree "dists/<%= metadata[:variant] %>" {
+  Sections      "10gen";
+  Architectures "i386 amd64";
+};
+
+APT::FTPArchive {
+  MD5 true;
+  SHA1 true;
+  SHA256 true;
+  SHA512 true;
+  Release {
+    Origin "10gen";
+    Label  "10gen";
+    Suite  "10gen";
+    Version "<%= metadata[:variant] %>";
+    Codename "<%= metadata[:variant] %>";
+    Architectures "i386 amd64";
+    Components "10gen";
+    Description "10gen packages";
+  };
+};
