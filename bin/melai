@@ -22,9 +22,14 @@ flag [:r, "repos-path"]
 # TODO: Default config file for melai?
 # https://github.com/davetron5000/gli/wiki/Config
 # config_file '.melai.rc'
+# if File.exists?(config_file)
+#   options_config = YAML.load_file(config_file)
+#   options.merge!(options_config)
+# end
 
 desc "Create a repository structure"
 command :create do |c|
+  # TODO: add a force option to rebuild from scratch
 
   c.desc "Source directory containing all packages, relative to current directory"
   c.default_value "srcpkgs"
