@@ -19,13 +19,8 @@ default_value "repo"
 arg_name "REPOS_PATH"
 flag [:r, "repos-path"]
 
-# TODO: Default config file for melai?
 # https://github.com/davetron5000/gli/wiki/Config
-# config_file '.melai.rc'
-# if File.exists?(config_file)
-#   options_config = YAML.load_file(config_file)
-#   options.merge!(options_config)
-# end
+config_file '.melai.rc'
 
 desc "Create a repository structure"
 command :create do |c|

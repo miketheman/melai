@@ -68,7 +68,8 @@ module Melai
       else
         # Do Debian-style repo builds
         here = File.dirname(__FILE__)
-        template = ERB.new(File.read(File.join(here, "..", "..", "templates", "apt-ftparchive.conf.erb")))
+        fileloc = File.join(here, "../..", "templates", "apt-ftparchive.conf.erb")
+        template = ERB.new(File.read(fileloc))
         output = Tempfile.new("apt-ftparchive.conf")
         output.write(template.result(binding))
         output.close()

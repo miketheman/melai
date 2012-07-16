@@ -4,7 +4,7 @@ require File.expand_path('../lib/melai/version', __FILE__)
 Gem::Specification.new do |gem|
 
   gem.name          = 'melai'
-  gem.summary       = %q{melai builds multi-platform repositories for a given list of files}
+  gem.summary       = %q{melai builds multi-platform repositories for a given list of package files}
   gem.description   = %q{Build your repositories with melai}
   gem.version       = Melai::VERSION
   
