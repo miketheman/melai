@@ -3,7 +3,11 @@ Feature: Create repositories from files
     As an operator
     I want to create multiple repositories from a set of files
 
-Scenario: Create a repository for source packages in a flat directory
+Background:
+    Given I double `apt-ftparchive` with exit status 0
+    And I double `createrepo` with exit status 0
+
+Scenario: Create a repository for source packages in a semi-flat directory
     Given an empty file named "srcpkgs/foo-1.0.0.i686.rpm"
     And an empty file named "srcpkgs/foo-1.0.0.i386.deb"
     And an empty file named "srcpkgs/ubuntu/foo-1.0.0-bar.i386.deb"

@@ -1,9 +1,11 @@
 # Set up the environment for testing
 require 'aruba/cucumber'
+require 'aruba-doubles/cucumber'
 
-# Before do
-#   @dirs = ["tmp/aruba"]
-# end
+Before do
+  @aruba_timeout_seconds = 5
+  # @dirs = ["tmp/aruba"]
+end
 
 After do |s| 
   # Tell Cucumber to quit after this scenario is done - if it failed.

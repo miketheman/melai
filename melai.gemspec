@@ -25,8 +25,8 @@ Gem::Specification.new do |gem|
   
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'aruba'
+  gem.add_development_dependency 'aruba-doubles'
   gem.add_development_dependency 'pry'
-  gem.add_development_dependency 'reek'
 
   # tailor, for style. https://github.com/turboladen/tailor
   gem.add_development_dependency 'tailor'
