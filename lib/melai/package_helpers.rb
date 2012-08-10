@@ -93,6 +93,8 @@ module Melai
           File.rename(release_file, File.join(variant_dir, "Release"))
 
           # TODO: GPG Sign the Release file
+          # See herre: https://github.com/mongodb/mongo/blob/master/buildscripts/packager.py#L439-447
+          # for the packager.py way of doing it.
 
         rescue Exception=>e
           exit_now!("Could not complete apt-ftparchive:\n#{e}", 1)
