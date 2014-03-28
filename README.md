@@ -1,3 +1,10 @@
+# DEPRECATED/Unsupported
+
+I wrote this a long time ago as a self-challenge, as well as a resolution to a data-duplication problem that it solved.
+I am no longer maintaining this code.
+
+---
+
 # Melai
 
 Melai is a command-line tool to create software package repositories for
